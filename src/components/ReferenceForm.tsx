@@ -2,8 +2,10 @@
 import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
 import { mq, styles, utils } from "./styles/ReferenceFormStyles";
-import CustomSelect, { SimpleCustomSelectEvent } from './CustomSelect'
-import { DataModel } from './interfaces'
+import CustomSelect from './CustomSelect'
+import { DataModel, UseFormInputResult, ValidationConfig, SimpleCustomSelectEvent } from './interfaces'
+import { v4 as uuidv4 } from 'uuid';
+import findIndex from 'lodash/findIndex'
 
 const maxWidth = 450;
 const minWidth = 350;
@@ -52,6 +54,7 @@ const localStyles = {
     maxWidth: `${maxWidth}px`,
     minWidth: `${minWidth}px`,
     minHeight: `${minHeight}px`,
+    margin: styles.spacing[48],
     backgroundColor: styles.colors.white,
     borderRadius: styles["border-radius"].xlarge,
     border: `1px solid ${styles.colors["border-primary"]}`,
@@ -258,6 +261,7 @@ function ReferenceForm() {
   const [employers, setEmployers] = useState(
     [
       {
+        uuid: uuidv4(),
         employerName: "",
         employmentStartDate: "",
         employmentEndDate: "",
@@ -268,21 +272,29 @@ function ReferenceForm() {
   const handleEmployer = (
     name: string,
     e: ChangeEvent<HTMLInputElement>,
-    i: number
+    uuid_: string
   ) => {
     const newEmployers: any[] = [...employers];
-    newEmployers[i][name] = e.target["value"];
+    const index = findIndex(newEmployers, ({ uuid }: { uuid: string }) => uuid === uuid_)
+
+    if (index === -1) {
+      throw new Error(`uuid ${uuid_} was not found among employers.\nemployers ${JSON.stringify(employers)}`)
+    }
+
+    newEmployers[index][name] = e.target["value"];
     setEmployers(newEmployers);
   }
 
-  const removeEmployer = (i: number) => {
+  const removeEmployer = (uuid_: string) => {
     const newEmployers = [...employers]
-    newEmployers.splice(i, 1)
+    const index = findIndex(newEmployers, ({ uuid }: { uuid: string }) => uuid === uuid_)
+    newEmployers.splice(index, 1)
     setEmployers(newEmployers)
   } 
 
   const addEmployer = () => {
     setEmployers([...employers, {
+      uuid: uuidv4(),
       employerName: "",
       employmentStartDate: "",
       employmentEndDate: "",
@@ -348,16 +360,16 @@ function ReferenceForm() {
       setSubmitted(true);
     } else {
       /* debug */
-      // const summary = [
-      //   firstName,
-      //   lastName,
-      //   address,
-      //   guarantorName,
-      //   guarantorAddress,
-      //   // guarantorRelationship,
-      // ].map(report);
+      const summary = [
+        firstName,
+        lastName,
+        address,
+        guarantorName,
+        guarantorAddress,
+        guarantorRelationship,
+      ].map(report);
 
-      // console.log("something wrong!", summary);
+      console.log("something wrong!", summary);
 
       /* send to API */
 
@@ -472,9 +484,11 @@ function ReferenceForm() {
               Employer
             </div>
 
-            <div className="employers" css={localStyles.employers}>
+            <div 
+              className="employers" test-id="__reference-form--employers" 
+              css={localStyles.employers}>
               {employers?.map((employer, i) => {
-                const { employerName, employmentStartDate, employmentEndDate } =
+                const { uuid, employerName, employmentStartDate, employmentEndDate } =
                   employer;
 
                 return (
@@ -491,7 +505,7 @@ function ReferenceForm() {
                       type="text"
                       name="employerName"
                       css={localStyles.textInput}
-                      onChange={(e) => handleEmployer("employerName", e, i)}
+                      onChange={(e) => handleEmployer("employerName", e, uuid)}
                       value={employerName}
                       disabled={submitted}
                       required
@@ -520,7 +534,7 @@ function ReferenceForm() {
                           name="employmentStartDate"
                           css={localStyles.dateInput}
                           onChange={(e) =>
-                            handleEmployer("employmentStartDate", e, i)
+                            handleEmployer("employmentStartDate", e, uuid)
                           }
                           value={employmentStartDate}
                           disabled={submitted}
@@ -544,7 +558,7 @@ function ReferenceForm() {
                           name="employmentEndDate"
                           css={localStyles.dateInput}
                           onChange={(e) =>
-                            handleEmployer("employmentEndDate", e, i)
+                            handleEmployer("employmentEndDate", e, uuid)
                           }
                           value={employmentEndDate}
                           disabled={submitted}
@@ -557,7 +571,7 @@ function ReferenceForm() {
                     <div 
                       className="remove-employer" 
                       css={localStyles.removeEmployerBtn}
-                      onClick={() => removeEmployer(i)}
+                      onClick={() => removeEmployer(uuid)}
                     >
                       Remove
                     </div>
@@ -569,6 +583,7 @@ function ReferenceForm() {
 
             <div
               className="add-employer"
+              test-id="__add-employer"
               css={localStyles.addEmployerBtn}
               onClick={() => addEmployer()}
             >
@@ -594,6 +609,7 @@ function ReferenceForm() {
               Guarantor name
             </label>
             <input
+            test-id="__guarantor_name"
               type="text"
               name="guarantor_name"
               css={localStyles.textInput}
@@ -606,6 +622,7 @@ function ReferenceForm() {
               Guarantor address
             </label>
             <input
+            test-id="__guarantor_address"
               type="text"
               name="guarantor_address"
               css={localStyles.textInput}
@@ -620,22 +637,13 @@ function ReferenceForm() {
               test-id="__reference-form--guarantor__relationship"
               css={localStyles.guarantorRelationship}
             >
-              {/* <select
-                name="guarantor_relationship"
-                {...guarantorRelationship.control}
-                disabled={submitted}
-              >
-                <option>Parent</option>
-                <option>Sibling</option>
-                <option>Employer</option>
-                <option>Other</option>
-              </select> */}
               <CustomSelect
                   {...{
                     ...selectProps,
                     ...guarantorRelationship.control,
                     styles: selectStyles,
                     disabled: submitted,
+                    testId: "__guarantor_relationship"
                   }}
                 />
             </div>
@@ -684,16 +692,7 @@ function ReferenceForm() {
 
       {submitted && (
         <div className="success" test-id="__success" css={localStyles.success}>
-          {[
-            firstName,
-            lastName,
-            address,
-            guarantorName,
-            guarantorAddress,
-            guarantorRelationship,
-          ]
-            .map(({ control }) => control.value)
-            .join(" ")}
+          all ok
         </div>
       )}
     </div>
@@ -702,24 +701,6 @@ function ReferenceForm() {
 
 export default ReferenceForm;
 
-interface ValidationConfig {
-  msg?: string;
-  validationFn?: (val: string) => boolean;
-}
-
-
-export interface UseFormInputResult {
-  control: {
-    value: string;
-    onChange: (
-      e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement> | SimpleCustomSelectEvent
-    ) => void;
-  };
-  validation: {
-    isValid: boolean;
-    validationMsg?: string;
-  };
-}
 
 function useFormInput(
   initialValue: string,

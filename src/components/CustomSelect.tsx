@@ -1,36 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import React, { useState } from "react";
 import './styles/CustomSelect.css'
-
-
-export interface Option {
-  value: string;
-  [key: string]: any;
-}
-
-export interface CustomSelectProps {
-  options?: Option[];
-  onChange: (e: SimpleCustomSelectEvent) => void;
-  value: string;
-  disabled?: boolean;
-  styles?: CustomSelectStyles;
-}
-
-export interface CSSObject {
-  [key: string]: string|number|CSSObject
-}
-
-export interface CustomSelectStyles {
-  control?: CSSObject;
-  body?: CSSObject;
-  arrow?: CSSObject;
-  optionsList?: CSSObject;
-  option?: CSSObject;
-}
-
-export interface SimpleCustomSelectEvent { 
-  target: { type: string; value: string; }
-}
+import { CustomSelectProps, Option } from './interfaces'
 
 const defaultStyles = {
   control: {
@@ -97,17 +68,17 @@ const defaultStyles = {
   }
 };
 
-function CustomSelect({ options, value, onChange, disabled, styles }: CustomSelectProps) {
+function CustomSelect({ options, value, onChange, disabled, styles, testId }: CustomSelectProps) {
   const [isOpen, toggleOpen] = useState(false);
   const [currentValue, setCurrentValue] = useState(value)
 
   return (
     <div className="custom-select">
-      <div className="custom-select--control" 
+      <div className="custom-select--control" test-id="__custom-select--control" 
       css={styles ? styles.control : defaultStyles.control}
       onClick={() => !disabled && toggleOpen((x) => !x)}
       >
-        <div className="custom-select--control-body" css={styles ? styles.body : defaultStyles.body}>
+        <div className="custom-select--control-body" test-id={testId || "__custom-select--control-body"} css={styles ? styles.body : defaultStyles.body}>
           {currentValue}
         </div>
         <div
@@ -152,6 +123,7 @@ function CustomSelect({ options, value, onChange, disabled, styles }: CustomSele
       {isOpen && options && (
         <div 
           className="custom-select--options-list" 
+          test-id="__custom-select--options-list"
           css={styles ? styles.optionsList : defaultStyles.optionsList}
         >
           {options.map((option: Option, i: number) => {
@@ -159,6 +131,7 @@ function CustomSelect({ options, value, onChange, disabled, styles }: CustomSele
               <div 
                 key={i}
                 className={`custom-select--option option--${i}`}
+                test-id={`__option--${i}`}
                 onClick={() => {
                   setCurrentValue(option.value)
                   onChange({ target: { type: 'select', value: option.value }})

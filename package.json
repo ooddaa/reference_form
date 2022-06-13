@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/plugin-proposal-throw-expressions": "^7.16.7",
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.9.3",
     "@testing-library/jest-dom": "^5.16.4",
@@ -10,12 +11,12 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.11.39",
-    "@types/react": "^18.0.12",
     "@types/react-dom": "^18.0.5",
+    "@types/uuid": "^8.3.4",
+    "lodash": "^4.17.21",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-scripts": "5.0.1",
-    "typescript": "^4.7.3",
     "uuid": "^8.3.2"
   },
   "scripts": {
@@ -45,7 +46,12 @@
   "devDependencies": {
     "@cypress/react": "^5.12.5",
     "@cypress/webpack-dev-server": "^1.8.4",
-    "cypress": "^10.1.0",
-    "webpack-dev-server": "^4.9.2"
+    "@types/lodash": "^4.14.182",
+    "@types/react": "^18.0.12",
+    "chai": "^4.3.6",
+    "chai-colors": "^1.0.1",
+    "cypress": "^9.7.0",
+    "typescript": "^4.6.4",
+    "webpack-dev-server": "^4.9.0"
   }
 }

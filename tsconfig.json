@@ -18,13 +18,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "removeComments": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "types": [
+      "@types/jest",
+      "jest"
+      ],
+    "jsxImportSource": "@emotion/react"
   },
   "include": ["src/**/*", "__tests__"],
   "exclude": [
     "__tests__/*.test.ts",
     "**/*.test.ts",
-    "**/*.spec.ts",
     "node_modules"
   ]
 }
