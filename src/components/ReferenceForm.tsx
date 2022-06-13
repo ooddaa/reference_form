@@ -1,5 +1,5 @@
 /**@jsxImportSource @emotion/react */
-import React, { FormEvent } from "react";
+import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
 import { styles, utils } from "./styles/ReferenceFormStyles";
 
@@ -23,9 +23,36 @@ const localStyles = {
 };
 
 function ReferenceForm() {
+  const [submitted, setSubmitted] = useState(false);
+  const firstName = useFormInput("");
+  const lastName = useFormInput("");
+  const address = useFormInput("");
+  const employerName = useFormInput("");
+  const employmentStartDate = useFormInput("");
+  const employmentEndDate = useFormInput("");
+  const guarantorName = useFormInput("");
+  const guarantorAddress = useFormInput("");
+  const guarantorRelationship = useFormInput("");
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    console.log(
+      "all ok, sending data:",
+      [
+        firstName,
+        lastName,
+        address,
+        employerName,
+        employmentStartDate,
+        employmentEndDate,
+        guarantorName,
+        guarantorAddress,
+        guarantorRelationship,
+      ].map(({ control }) => control.value)
+    );
   };
+
   return (
     <div>
       <Global
@@ -86,6 +113,7 @@ function ReferenceForm() {
               type="text"
               name="fist_name"
               css={localStyles.textInput}
+              {...firstName.control}
               required
             />
 
@@ -96,6 +124,7 @@ function ReferenceForm() {
               type="text"
               name="last_name"
               css={localStyles.textInput}
+              {...lastName.control}
               required
             />
 
@@ -106,6 +135,7 @@ function ReferenceForm() {
               type="text"
               name="address"
               css={localStyles.textInput}
+              {...address.control}
               required
             />
           </div>
@@ -131,6 +161,7 @@ function ReferenceForm() {
               type="text"
               name="employer_name"
               css={localStyles.textInput}
+              {...employerName.control}
               required
             />
 
@@ -153,6 +184,7 @@ function ReferenceForm() {
                   type="date"
                   name="employment-start-date"
                   css={localStyles.textInput}
+                  {...employmentStartDate.control}
                   required
                 />
               </div>
@@ -169,6 +201,7 @@ function ReferenceForm() {
                   type="date"
                   name="employment-end-date"
                   css={localStyles.textInput}
+                  {...employmentEndDate.control}
                   /* may still be working for the employer */
                   // required
                 />
@@ -197,6 +230,7 @@ function ReferenceForm() {
               type="text"
               name="guarantor_name"
               css={localStyles.textInput}
+              {...guarantorName.control}
               required
             />
 
@@ -207,6 +241,7 @@ function ReferenceForm() {
               type="text"
               name="guarantor_address"
               css={localStyles.textInput}
+              {...guarantorAddress.control}
               required
             />
 
@@ -216,7 +251,10 @@ function ReferenceForm() {
               test-id="__reference-form--guarantor__relationship"
               css={localStyles.guarantorRelationship}
             >
-              <select name="guarantor_relationship">
+              <select
+                name="guarantor_relationship"
+                {...guarantorRelationship.control}
+              >
                 <option>Parent</option>
                 <option>Sibling</option>
                 <option>Employer</option>
@@ -255,3 +293,58 @@ function ReferenceForm() {
 }
 
 export default ReferenceForm;
+
+interface ValidationConfig {
+  msg?: string;
+  validationFn?: (val: string) => boolean;
+}
+
+function useFormInput(
+  initialValue: string,
+  validationConfig?: ValidationConfig
+) {
+  const [value, setValue] = useState<string>(initialValue);
+  const [validationMsg, setValidationMsg] = useState<string>(
+    validationConfig?.msg || ""
+  );
+
+  /* presume non valid input */
+  const [isValid, setIsValid] = useState<boolean>(false);
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+  ) => {
+    /* validate text */
+    if (e.target.type === "text") {
+      /* user provided custom validation function? */
+      if (
+        validationConfig &&
+        typeof validationConfig.validationFn === "function"
+      ) {
+        /* run validation function and update input's validation state */
+        setIsValid(validationConfig.validationFn(e.target.value));
+      } else {
+        /* no validation function === users don't care */
+        setIsValid(true);
+      }
+    } else {
+      /* selects/dates could be validated here, but no point atm */
+      setIsValid(true);
+    }
+
+    /* provide the value for display */
+    setValue(e.target.value);
+  };
+
+  return {
+    control: {
+      value,
+      onChange: handleChange,
+    },
+    validation: {
+      isValid,
+      validationMsg,
+      // ...validationConfig,
+    },
+  };
+}
