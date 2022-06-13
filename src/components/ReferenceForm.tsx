@@ -1,7 +1,7 @@
 /**@jsxImportSource @emotion/react */
 import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
-import { spacing, styles, utils } from "./styles/ReferenceFormStyles";
+import { mq, styles, utils } from "./styles/ReferenceFormStyles";
 import { getValue } from "@testing-library/user-event/dist/utils";
 
 const maxWidth = 450;
@@ -13,8 +13,7 @@ const general = {
   display: "flex",
   "flex-direction": "column",
   marginBottom: styles.spacing[24],
-  gap: styles.spacing[4],
-}
+};
 
 const generalInput = {
   height: styles.spacing[36],
@@ -25,10 +24,10 @@ const generalInput = {
   // margin: "4px 0 0 0",
   marginBottom: styles.spacing[16],
   "&:focus": {
-    border: `1px ${styles.colors['border-primary']} solid`,
+    border: `1px ${styles.colors["border-primary"]} solid`,
     outline: "none",
   },
-}
+};
 
 const submitBtn = {
   border: "none",
@@ -41,8 +40,11 @@ const submitBtn = {
   backgroundColor: styles.colors["dark-blue"],
   fontWeight: 600,
   letterSpacing: "1.5px",
-  "cursor": "pointer",
-}
+  cursor: "pointer",
+  "&:active": {
+    transform: "scale(.98)",
+  },
+};
 
 const localStyles = {
   main: {
@@ -54,6 +56,19 @@ const localStyles = {
     border: `1px solid ${styles.colors["border-primary"]}`,
     padding: "24px",
     boxShadow: `0 0 10px ${styles.colors["border-primary"]}`,
+
+    /* media queries */
+    [mq[400]]: {
+      minWidth: `350px`,
+    },
+
+    [mq[600]]: {
+      minWidth: `450px`,
+    },
+
+    [mq[1000]]: {
+      minWidth: `600px`,
+    },
   },
   mainTitle: {
     fontSize: styles.typography["title-md"],
@@ -70,28 +85,38 @@ const localStyles = {
   },
   personal: {
     ...general,
-    // marginBottom: styles.spacing[16],
+    "& input:last-of-type": {
+      marginBottom: 0
+    },
+    marginBottom: styles.spacing[48],
   },
   label: {
     fontSize: styles.spacing[12],
     fontWeight: 400,
     color: styles.colors["dark-blue"],
-    marginBottom: styles.spacing[4]
+    marginBottom: styles.spacing[4],
   },
   textInput: {
     ...generalInput,
   },
   employer: {
     ...general,
+    marginBottom: styles.spacing[36]
+  },
+  employers: {
+
   },
   employmentDates: {
     ...utils.flexCenter,
+    justifyContent: 'flex-start',
   },
   date: {
+    width: "150px"
   },
   dateInput: {
     ...generalInput,
     marginTop: styles.spacing[8],
+    marginBottom: styles.spacing[4],
   },
   guarantor: {
     ...general,
@@ -99,8 +124,8 @@ const localStyles = {
   guarantorRelationship: {},
   buttons: {
     ...utils.flexRow,
-    justifyContent: 'flex-end',
-    gap: styles.spacing[12]
+    justifyContent: "flex-end",
+    gap: styles.spacing[12],
   },
   cancelBtn: {
     ...submitBtn,
@@ -109,25 +134,46 @@ const localStyles = {
     backgroundColor: styles.colors.white,
     "&:hover": {
       color: styles.colors["text-primary"],
-    }
+    },
   },
   submitBtn: {
     ...submitBtn,
     "&:hover": {
       backgroundColor: styles.colors["dark-blue-hover"],
-    }
+    },
   },
   submitBtnSuccess: {
     ...submitBtn,
+    width: styles.spacing[128],
     backgroundColor: styles.colors["green-primary"],
   },
+  addEmployerBtn: {
+    ...submitBtn,
+    ...utils.flexCenter,
+    padding: `${styles.spacing[4]} ${styles.spacing[8]}`,
+    fontSize: styles.spacing[12],
+    marginTop: styles.spacing[0],
+    width: styles.spacing[128],
+    height: styles.spacing[48],
+  },
+  removeEmployerBtn: {
+    ...submitBtn,
+    ...utils.flexCenter,
+    padding: `${styles.spacing[4]} ${styles.spacing[8]}`,
+    fontSize: styles.spacing[12],
+    marginTop: styles.spacing[6],
+    width: styles.spacing[128],
+    height: styles.spacing[36],
+    backgroundColor: styles.colors.white,
+    border: `1px solid ${styles.colors["red"]}`,
+    color: styles.colors["red"],
+  },
   success: {
-    display: 'none',
-    // display: 'inline-block',
+    display: "none",
     width: `${maxWidth}px`,
-    height: 'auto',
-    marginTop: styles.spacing[36]
-  }
+    height: "auto",
+    marginTop: styles.spacing[36],
+  },
 };
 
 /* 
@@ -190,12 +236,46 @@ function ReferenceForm() {
     msg: "Address must be at least 5 characters long",
     validationFn: (val) => val.length >= 5,
   });
-  const employerName = useFormInput("");
-  const employmentStartDate = useFormInput("");
-  const employmentEndDate = useFormInput("");
   const guarantorName = useFormInput("");
   const guarantorAddress = useFormInput("");
   const guarantorRelationship = useFormInput("");
+
+  const [employers, setEmployers] = useState(
+    [
+      {
+        employerName: "",
+        employmentStartDate: "",
+        employmentEndDate: "",
+      },
+    ]
+  );
+
+  const handleEmployer = (
+    name: string,
+    e: ChangeEvent<HTMLInputElement>,
+    i: number
+  ) => {
+    const newEmployers: any[] = [...employers];
+    newEmployers[i][name] = e.target["value"];
+    setEmployers(newEmployers);
+  }
+
+  const removeEmployer = (i: number) => {
+    console.log('removing employer')
+    const newEmployers = [...employers]
+    newEmployers.splice(i, 1)
+    console.log(i, newEmployers)
+    setEmployers(newEmployers)
+  } 
+
+  const addEmployer = () => {
+    console.log("adding employer");
+    setEmployers([...employers, {
+      employerName: "",
+      employmentStartDate: "",
+      employmentEndDate: "",
+    }]);
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -226,9 +306,6 @@ function ReferenceForm() {
         firstName,
         lastName,
         address,
-        employerName,
-        employmentStartDate,
-        employmentEndDate,
         guarantorName,
         guarantorAddress,
         guarantorRelationship,
@@ -236,37 +313,23 @@ function ReferenceForm() {
     ) {
       const rv = {
         personal: {
-          first_name: firstName.control.
-          value,
-          last_name: lastName.control.
-          value,
-          current_address: address.control.
-          value,
+          first_name: firstName.control.value,
+          last_name: lastName.control.value,
+          current_address: address.control.value,
         },
         employer: [
-          {
-            name: employerName.control.
-            value,
-            start_date: parseDate(employmentStartDate.control.
-              value), // make "20180301",
-            end_date: parseDate(employmentEndDate.control.
-              value), //"20190815"
-          },
-
-          /**@todo add employers */
-          //{
-          //       "name": "Employer",
-          //       "start_date": "20180901",
-          //       "end_date": "20190131"
-          // }
+          ...employers.map(({employerName, employmentStartDate, employmentEndDate}) => {
+            return {
+              name: employerName,
+              start_date: parseDate(employmentStartDate), // make "20180301",
+              end_date: parseDate(employmentEndDate), //"20190815"
+            }
+          })
         ],
         guarantor: {
-          name: guarantorName.control.
-          value,
-          address: guarantorAddress.control.
-          value,
-          relation: guarantorRelationship.control.
-          value,
+          name: guarantorName.control.value,
+          address: guarantorAddress.control.value,
+          relation: guarantorRelationship.control.value,
         },
       };
       console.log("ok", rv);
@@ -277,9 +340,6 @@ function ReferenceForm() {
         firstName,
         lastName,
         address,
-        employerName,
-        employmentStartDate,
-        employmentEndDate,
         guarantorName,
         guarantorAddress,
         guarantorRelationship,
@@ -387,7 +447,7 @@ function ReferenceForm() {
             />
           </div>
 
-          {/* EMPLOYER */}
+          {/* EMPLOYERS */}
           <div
             className="reference-form--employer"
             test-id="__reference-form--employer"
@@ -401,69 +461,107 @@ function ReferenceForm() {
               Employer
             </div>
 
-            <label htmlFor="employer_name" css={localStyles.label}>
-              Employer name
-            </label>
-            <input
-              type="text"
-              name="employer_name"
-              css={localStyles.textInput}
-              {...employerName.control}
-              disabled={submitted}
-              required
-            />
+            <div className="employers" css={localStyles.employers}>
+              {employers?.map((employer, i) => {
+                const { employerName, employmentStartDate, employmentEndDate } =
+                  employer;
 
-            {/* EMPLOYMENT DATES */}
+                return (
+                  <div
+                    className={`employer employer--${i}`}
+                    test-id={`__employer--${i}`}
+                    css={localStyles.employer}
+                    key={i}
+                  >
+                    <label htmlFor="employerName" css={localStyles.label}>
+                      Employer name
+                    </label>
+                    <input
+                      type="text"
+                      name="employerName"
+                      css={localStyles.textInput}
+                      onChange={(e) => handleEmployer("employerName", e, i)}
+                      value={employerName}
+                      disabled={submitted}
+                      required
+                    />
+
+                    {/* EMPLOYMENT DATES */}
+                    <div
+                      className="reference-form--employer__dates"
+                      test-id="__reference-form--employer__dates"
+                      css={localStyles.employmentDates}
+                    >
+                      {/* START DATE */}
+                      <div
+                        className="employment-start-date"
+                        test-id="__employment-start-date"
+                        css={localStyles.date}
+                      >
+                        <label
+                          htmlFor="employmentStartDate"
+                          css={localStyles.label}
+                        >
+                          Employment start date
+                        </label>
+                        <input
+                          type="date"
+                          name="employmentStartDate"
+                          css={localStyles.dateInput}
+                          onChange={(e) =>
+                            handleEmployer("employmentStartDate", e, i)
+                          }
+                          value={employmentStartDate}
+                          disabled={submitted}
+                          required
+                        />
+                      </div>
+                      {/* END DATE */}
+                      <div
+                        className="employment-end-date"
+                        test-id="__employment-end-date"
+                        css={localStyles.date}
+                      >
+                        <label
+                          htmlFor="employmentEndDate"
+                          css={localStyles.label}
+                        >
+                          Employment end date
+                        </label>
+                        <input
+                          type="date"
+                          name="employmentEndDate"
+                          css={localStyles.dateInput}
+                          onChange={(e) =>
+                            handleEmployer("employmentEndDate", e, i)
+                          }
+                          value={employmentEndDate}
+                          disabled={submitted}
+                          /* may still be working for the employer */
+                          // required
+                        />
+                      </div>
+                      
+                    </div>
+                    <div 
+                      className="remove-employer" 
+                      css={localStyles.removeEmployerBtn}
+                      onClick={() => removeEmployer(i)}
+                    >
+                      Remove
+                    </div>
+
+                  </div>
+                );
+              })}
+            </div>
+
             <div
-              className="reference-form--employer__dates"
-              test-id="__reference-form--employer__dates"
-              css={{
-                ...localStyles.employmentDates
-              }
-              }
+              className="add-employer"
+              css={localStyles.addEmployerBtn}
+              onClick={() => addEmployer()}
             >
-              {/* START DATE */}
-              <div
-                className="employment-start-date"
-                test-id="__employment-start-date"
-                css={localStyles.date}
-              >
-                <label htmlFor="employment-start-date" 
-                css={{
-                  ...localStyles.label,
-                  // marginBottom: '20px'
-                }}
-                >
-                  Employment start date
-                </label>
-                <input
-                  type="date"
-                  name="employment-start-date"
-                  css={localStyles.dateInput}
-                  {...employmentStartDate.control}
-                  disabled={submitted}
-                  required
-                />
-              </div>
-              {/* END DATE */}
-              <div
-                className="employment-end-date"
-                test-id="__employment-end-date"
-                css={localStyles.date}
-              >
-                <label htmlFor="employment-end-date" css={localStyles.label}>
-                  Employment end date
-                </label>
-                <input
-                  type="date"
-                  name="employment-end-date"
-                  css={localStyles.dateInput}
-                  {...employmentEndDate.control}
-                  disabled={submitted}
-                  /* may still be working for the employer */
-                  // required
-                />
-              </div>
+              Add employer
             </div>
           </div>
 
@@ -523,7 +621,9 @@ function ReferenceForm() {
               </select>
             </div>
           </div>
-                <div className="divider" css={localStyles.sectionTitle}></div>
+
+          <div className="divider" css={localStyles.sectionTitle}></div>
+
           {/* SUBMISSION BUTTONS */}
 
           <div
@@ -539,27 +639,26 @@ function ReferenceForm() {
               Cancel
             </button>
 
-            {submitted ? 
-            <button
-            className="reference-form--buttons__submitBtn"
-            test-id="__reference-form--buttons__submitBtn"
-            type="submit"
-            css={localStyles.submitBtnSuccess}
-            disabled
-          >
-            Thank you!
-          </button>
-            : <button
-            className="reference-form--buttons__submitBtn"
-            test-id="__reference-form--buttons__submitBtn"
-            type="submit"
-            css={localStyles.submitBtn}
-          >
-            Submit
-          </button>
-          
-          }
-            
+            {submitted ? (
+              <button
+                className="reference-form--buttons__submitBtn"
+                test-id="__reference-form--buttons__submitBtn"
+                type="submit"
+                css={localStyles.submitBtnSuccess}
+                disabled
+              >
+                Thank you!
+              </button>
+            ) : (
+              <button
+                className="reference-form--buttons__submitBtn"
+                test-id="__reference-form--buttons__submitBtn"
+                type="submit"
+                css={localStyles.submitBtn}
+              >
+                Submit
+              </button>
+            )}
           </div>
         </form>
       </main>
@@ -570,9 +669,9 @@ function ReferenceForm() {
             firstName,
             lastName,
             address,
-            employerName,
-            employmentStartDate,
-            employmentEndDate,
+            // employerName,
+            // employmentStartDate,
+            // employmentEndDate,
             guarantorName,
             guarantorAddress,
             guarantorRelationship,

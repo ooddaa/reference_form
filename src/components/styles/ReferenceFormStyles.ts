@@ -10,6 +10,7 @@ SYSTEMS
 */
 
 export const spacing = {
+  0: "0",
   2: "2px",
   4: "4px",
   6: "6px",
@@ -26,10 +27,13 @@ export const spacing = {
 
 export const breakpoints = {
   400: "400px",
-  800: "800px",
+  600: "600px",
   900: "900px",
   1000: "1000px",
 };
+
+export const mq = (breakpoints => breakpoints.reduce(makeMediaQueries, {} as MediaQueries))(Object.keys(breakpoints).map(Number))
+// export const mq = (breakpoints => breakpoints.reduce(makeMediaQueries, {} as MediaQueries))([400, 600, 900, 1000])
 
 export const styles = {
   typography: {
@@ -40,6 +44,7 @@ export const styles = {
   colors: {
     white: "#fff",
     black: "#000",
+    red: "#A31621",
     "bg-primary": "rgb(228,234,241)",
     "text-primary": "#222",
     "text-light": "#999",
@@ -69,7 +74,21 @@ export const utils = {
     display: "flex",
     "flex-direction": "row",
   },
+  flexCol: {
+    display: "flex",
+    "flex-direction": "column",
+  },
   align: {
     alignItems: "center",
   },
 };
+
+
+interface MediaQueries {
+  [key: number ]: string 
+}
+
+function makeMediaQueries(acc: MediaQueries, bp: number) { 
+  acc[bp] = `@media (min-width: ${bp}px)`
+  return acc
+}
