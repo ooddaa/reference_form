@@ -73,7 +73,7 @@ export const utils = {
   flexRow: {
     display: "flex",
     "flex-direction": "row",
-  },
+},
   flexCol: {
     display: "flex",
     "flex-direction": "column",

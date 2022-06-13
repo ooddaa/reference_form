@@ -2,7 +2,8 @@
 import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
 import { mq, styles, utils } from "./styles/ReferenceFormStyles";
-import { getValue } from "@testing-library/user-event/dist/utils";
+import CustomSelect, { SimpleCustomSelectEvent } from './CustomSelect'
+import { DataModel } from './interfaces'
 
 const maxWidth = 450;
 const minWidth = 350;
@@ -52,9 +53,9 @@ const localStyles = {
     minWidth: `${minWidth}px`,
     minHeight: `${minHeight}px`,
     backgroundColor: styles.colors.white,
-    borderRadius: "9px",
+    borderRadius: styles["border-radius"].xlarge,
     border: `1px solid ${styles.colors["border-primary"]}`,
-    padding: "24px",
+    padding: styles.spacing[24],
     boxShadow: `0 0 10px ${styles.colors["border-primary"]}`,
 
     /* media queries */
@@ -176,54 +177,68 @@ const localStyles = {
   },
 };
 
-/* 
-
-{
-  "personal": {
-    "first_name": "First name",
-    "last_name": "Last name",
-    "current_address": "Address 1, Address 2, ..."
+const selectStyles = {
+  control: {
+    height: styles.spacing[36],
+    borderRadius: styles["border-radius"].primary,
+    border: `1px solid ${styles.colors["border-primary"]}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    "flex-direction": "row",
   },
-  "employer": [
-    {
-      "name": "Employer",
-      "start_date": "20180301",
-      "end_date": "20190815"
-}, {
-      "name": "Employer",
-      "start_date": "20180901",
-      "end_date": "20190131"
-} ],
-  "guarantor": {
-    "name": "Guarantor",
-    "address": "Address1, Address2, ...",
-    "relation": "Parent"
-} }
-*/
-interface DataModel {
-  personal: {
-    first_name: string;
-    last_name: string;
-    current_address: string;
-  };
-  employer: [
-    {
-      name: string;
-      start_date: string;
-      end_date: string;
+  body: {
+    height: "100%",
+    width: "100%",
+    backgroundColor: "white",
+    borderRadius: `${styles["border-radius"].xlarge} 0 0 ${styles["border-radius"].xlarge}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    padding: `0 0 0 ${styles.spacing[16]}`,
+    color: styles.colors["text-primary"],
+    fontSize: styles.spacing[12],
+  },
+  arrow: {
+    height: "100%",
+    width: styles.spacing[48],
+    backgroundColor: "white",
+    borderRadius: `0 ${styles["border-radius"].xlarge} ${styles["border-radius"].xlarge} 0`,
+    borderLeft: `1px solid ${styles.colors["border-primary"]}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  optionsList: {
+    width: '300px',
+    backgroundColor: 'white',
+    border: `1px solid ${styles.colors["border-primary"]}`,
+    borderRadius: `${styles["border-radius"].xlarge}`, 
+    "& div:first-of-type": {
+      borderRadius: `${styles["border-radius"].xlarge} ${styles["border-radius"].xlarge} 0 0`,
     },
-    {
-      name: string;
-      start_date: string;
-      end_date: string;
+    "& div:last-child": {
+      borderRadius: `0 0 ${styles["border-radius"].xlarge} ${styles["border-radius"].xlarge}`,
+    },
+  },
+  option: {
+    width: "100%",
+    height: styles.spacing[36],
+    padding: `0 ${styles.spacing[16]}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    color: styles.colors["text-primary"],
+    fontSize: styles.spacing[12],
+    "&:hover": {
+      backgroundColor: styles.colors["bg-primary"],
     }
-  ];
-  guarantor: {
-    name: string;
-    address: string;
-    relation: string;
-  };
-}
+  },
+};
+
+const selectProps = {
+  options: [{ value: "Parent" }, { value: "Sibling" }, { value: "Employer" }, { value: "Other" }],
+};
 
 function ReferenceForm() {
   const [submitted, setSubmitted] = useState(false);
@@ -238,7 +253,7 @@ function ReferenceForm() {
   });
   const guarantorName = useFormInput("");
   const guarantorAddress = useFormInput("");
-  const guarantorRelationship = useFormInput("");
+  const guarantorRelationship = useFormInput("Please select an option");
 
   const [employers, setEmployers] = useState(
     [
@@ -261,15 +276,12 @@ function ReferenceForm() {
   }
 
   const removeEmployer = (i: number) => {
-    console.log('removing employer')
     const newEmployers = [...employers]
     newEmployers.splice(i, 1)
-    console.log(i, newEmployers)
     setEmployers(newEmployers)
   } 
 
   const addEmployer = () => {
-    console.log("adding employer");
     setEmployers([...employers, {
       employerName: "",
       employmentStartDate: "",
@@ -311,7 +323,7 @@ function ReferenceForm() {
         guarantorRelationship,
       ].every(isValid)
     ) {
-      const rv = {
+      const rv: DataModel = {
         personal: {
           first_name: firstName.control.value,
           last_name: lastName.control.value,
@@ -336,16 +348,16 @@ function ReferenceForm() {
       setSubmitted(true);
     } else {
       /* debug */
-      const summary = [
-        firstName,
-        lastName,
-        address,
-        guarantorName,
-        guarantorAddress,
-        guarantorRelationship,
-      ].map(report);
+      // const summary = [
+      //   firstName,
+      //   lastName,
+      //   address,
+      //   guarantorName,
+      //   guarantorAddress,
+      //   // guarantorRelationship,
+      // ].map(report);
 
-      console.log("something wrong!", summary);
+      // console.log("something wrong!", summary);
 
       /* send to API */
 
@@ -363,7 +375,6 @@ function ReferenceForm() {
             boxSizing: "border-box",
           },
           body: {
-            // height: "100vh",
             height: "auto",
             backgroundColor: styles.colors["bg-primary"],
             fontFamily: "Inter, sans-serif",
@@ -609,7 +620,7 @@ function ReferenceForm() {
               test-id="__reference-form--guarantor__relationship"
               css={localStyles.guarantorRelationship}
             >
-              <select
+              {/* <select
                 name="guarantor_relationship"
                 {...guarantorRelationship.control}
                 disabled={submitted}
@@ -618,7 +629,15 @@ function ReferenceForm() {
                 <option>Sibling</option>
                 <option>Employer</option>
                 <option>Other</option>
-              </select>
+              </select> */}
+              <CustomSelect
+                  {...{
+                    ...selectProps,
+                    ...guarantorRelationship.control,
+                    styles: selectStyles,
+                    disabled: submitted,
+                  }}
+                />
             </div>
           </div>
 
@@ -669,9 +688,6 @@ function ReferenceForm() {
             firstName,
             lastName,
             address,
-            // employerName,
-            // employmentStartDate,
-            // employmentEndDate,
             guarantorName,
             guarantorAddress,
             guarantorRelationship,
@@ -691,17 +707,17 @@ interface ValidationConfig {
   validationFn?: (val: string) => boolean;
 }
 
+
 export interface UseFormInputResult {
   control: {
     value: string;
     onChange: (
-      e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+      e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement> | SimpleCustomSelectEvent
     ) => void;
   };
   validation: {
     isValid: boolean;
     validationMsg?: string;
-    // keyof ValidationConfig,
   };
 }
 
@@ -716,7 +732,10 @@ function useFormInput(
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+    e:  
+    | ChangeEvent<HTMLInputElement> 
+    | ChangeEvent<HTMLSelectElement> 
+    | SimpleCustomSelectEvent
   ) => {
     /* validate text */
     if (e.target.type === "text") {
@@ -754,7 +773,7 @@ function useFormInput(
     validation: {
       isValid,
       validationMsg,
-      // ...validationConfig,
+      ...validationConfig,
     },
   };
 }
