@@ -20,6 +20,8 @@ export const spacing = {
   32: "32px",
   36: "36px",
   48: "48px",
+  96: "96px",
+  128: "128px",
 };
 
 export const breakpoints = {
@@ -40,12 +42,13 @@ export const styles = {
     black: "#000",
     "bg-primary": "rgb(228,234,241)",
     "text-primary": "#222",
-    "text-light": "#444",
+    "text-light": "#999",
     "dark-blue": "rgb(20,30,43)",
-    "dark-blue-hover": "rgb(20,41,46)",
+    "dark-blue-hover": "rgba(20,41,50)",
     "green-primary": "#14A995",
+    "border-primary": "rgb(209,215,224)",
   },
-  borders: {
+  "border-radius": {
     small: spacing[2],
     primary: spacing[4],
     large: spacing[6],

@@ -1,25 +1,133 @@
 /**@jsxImportSource @emotion/react */
 import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
-import { styles, utils } from "./styles/ReferenceFormStyles";
+import { spacing, styles, utils } from "./styles/ReferenceFormStyles";
+import { getValue } from "@testing-library/user-event/dist/utils";
+
+const maxWidth = 450;
+const minWidth = 350;
+const minHeight = 200;
+
+const general = {
+  color: styles.colors["dark-blue"],
+  display: "flex",
+  "flex-direction": "column",
+  marginBottom: styles.spacing[24],
+  gap: styles.spacing[4],
+}
+
+const generalInput = {
+  height: styles.spacing[36],
+  backgroundColor: styles.colors["bg-primary"],
+  border: "1px transparent solid",
+  borderRadius: styles["border-radius"].primary,
+  padding: "0 8px",
+  // margin: "4px 0 0 0",
+  marginBottom: styles.spacing[16],
+  "&:focus": {
+    border: `1px ${styles.colors['border-primary']} solid`,
+    outline: "none",
+  },
+}
+
+const submitBtn = {
+  border: "none",
+  display: "inline-block",
+  marginTop: styles.spacing[6],
+  width: styles.spacing[128],
+  height: styles.spacing[48],
+  borderRadius: styles["border-radius"].primary,
+  color: styles.colors["bg-primary"],
+  backgroundColor: styles.colors["dark-blue"],
+  fontWeight: 600,
+  letterSpacing: "1.5px",
+  "cursor": "pointer",
+}
 
 const localStyles = {
-  main: {},
-  mainTitle: {},
-  sectionTitle: {},
-  personal: {},
-  label: {},
-  textInput: {},
-  employer: {},
+  main: {
+    maxWidth: `${maxWidth}px`,
+    minWidth: `${minWidth}px`,
+    minHeight: `${minHeight}px`,
+    backgroundColor: styles.colors.white,
+    borderRadius: "9px",
+    border: `1px solid ${styles.colors["border-primary"]}`,
+    padding: "24px",
+    boxShadow: `0 0 10px ${styles.colors["border-primary"]}`,
+  },
+  mainTitle: {
+    fontSize: styles.typography["title-md"],
+    padding: `${styles.spacing[8]} ${styles.spacing[16]} ${styles.spacing[16]} ${styles.spacing[16]}`,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionTitle: {
+    fontWeight: 500,
+    paddingBottom: styles.spacing[8],
+    borderBottom: `1px solid ${styles.colors["border-primary"]}`,
+    marginBottom: styles.spacing[16],
+  },
+  personal: {
+    ...general,
+    // marginBottom: styles.spacing[16],
+  },
+  label: {
+    fontSize: styles.spacing[12],
+    fontWeight: 400,
+    color: styles.colors["dark-blue"],
+    marginBottom: styles.spacing[4]
+  },
+  textInput: {
+    ...generalInput,
+  },
+  employer: {
+    ...general,
+  },
   employmentDates: {
     ...utils.flexCenter,
   },
-  date: {},
-  guarantor: {},
+  date: {
+  },
+  dateInput: {
+    ...generalInput,
+    marginTop: styles.spacing[8],
+  },
+  guarantor: {
+    ...general,
+  },
   guarantorRelationship: {},
-  buttons: {},
-  cancelBtn: {},
-  submitBtn: {},
+  buttons: {
+    ...utils.flexRow,
+    justifyContent: 'flex-end',
+    gap: styles.spacing[12]
+  },
+  cancelBtn: {
+    ...submitBtn,
+    border: `2px solid ${styles.colors["border-primary"]}`,
+    color: styles.colors["text-light"],
+    backgroundColor: styles.colors.white,
+    "&:hover": {
+      color: styles.colors["text-primary"],
+    }
+  },
+  submitBtn: {
+    ...submitBtn,
+    "&:hover": {
+      backgroundColor: styles.colors["dark-blue-hover"],
+    }
+  },
+  submitBtnSuccess: {
+    ...submitBtn,
+    backgroundColor: styles.colors["green-primary"],
+  },
+  success: {
+    display: 'none',
+    // display: 'inline-block',
+    width: `${maxWidth}px`,
+    height: 'auto',
+    marginTop: styles.spacing[36]
+  }
 };
 
 /* 
@@ -110,9 +218,9 @@ function ReferenceForm() {
     }
 
     function parseDate(date: string): string {
-      return date.replace(/-/g, "")
+      return date.replace(/-/g, "");
     }
-    
+
     if (
       [
         firstName,
@@ -126,32 +234,41 @@ function ReferenceForm() {
         guarantorRelationship,
       ].every(isValid)
     ) {
-
-      const rv = { 
-        "personal": {
-          "first_name": firstName.control.value,
-          "last_name": lastName.control.value,
-          "current_address": address.control.value,
+      const rv = {
+        personal: {
+          first_name: firstName.control.
+          value,
+          last_name: lastName.control.
+          value,
+          current_address: address.control.
+          value,
         },
-        "employer": [
+        employer: [
           {
-            "name": employerName.control.value,
-            "start_date": parseDate(employmentStartDate.control.value), // make "20180301",
-            "end_date": parseDate(employmentEndDate.control.value), //"20190815"
-      }, 
-      
-      /**@todo add employers */
-      //{
-      //       "name": "Employer",
-      //       "start_date": "20180901",
-      //       "end_date": "20190131"
-      // } 
-    ],
-        "guarantor": {
-          "name": guarantorName.control.value,
-          "address": guarantorAddress.control.value,
-          "relation": guarantorRelationship.control.value,
-      } }
+            name: employerName.control.
+            value,
+            start_date: parseDate(employmentStartDate.control.
+              value), // make "20180301",
+            end_date: parseDate(employmentEndDate.control.
+              value), //"20190815"
+          },
+
+          /**@todo add employers */
+          //{
+          //       "name": "Employer",
+          //       "start_date": "20180901",
+          //       "end_date": "20190131"
+          // }
+        ],
+        guarantor: {
+          name: guarantorName.control.
+          value,
+          address: guarantorAddress.control.
+          value,
+          relation: guarantorRelationship.control.
+          value,
+        },
+      };
       console.log("ok", rv);
       setSubmitted(true);
     } else {
@@ -186,7 +303,8 @@ function ReferenceForm() {
             boxSizing: "border-box",
           },
           body: {
-            height: "100vh",
+            // height: "100vh",
+            height: "auto",
             backgroundColor: styles.colors["bg-primary"],
             fontFamily: "Inter, sans-serif",
           },
@@ -233,10 +351,12 @@ function ReferenceForm() {
               First name
             </label>
             <input
+              test-id="__reference-form--personal__first-name"
               type="text"
               name="fist_name"
               css={localStyles.textInput}
               {...firstName.control}
+              disabled={submitted}
               required
             />
 
@@ -244,10 +364,12 @@ function ReferenceForm() {
               Last name
             </label>
             <input
+              test-id="__reference-form--personal__last-name"
               type="text"
               name="last_name"
               css={localStyles.textInput}
               {...lastName.control}
+              disabled={submitted}
               required
             />
 
@@ -255,10 +377,12 @@ function ReferenceForm() {
               Address
             </label>
             <input
+              test-id="__reference-form--personal__address"
               type="text"
               name="address"
               css={localStyles.textInput}
               {...address.control}
+              disabled={submitted}
               required
             />
           </div>
@@ -285,6 +409,7 @@ function ReferenceForm() {
               name="employer_name"
               css={localStyles.textInput}
               {...employerName.control}
+              disabled={submitted}
               required
             />
 
@@ -292,7 +417,10 @@ function ReferenceForm() {
             <div
               className="reference-form--employer__dates"
               test-id="__reference-form--employer__dates"
-              css={localStyles.employmentDates}
+              css={{
+                ...localStyles.employmentDates
+              }
+              }
             >
               {/* START DATE */}
               <div
@@ -300,14 +428,20 @@ function ReferenceForm() {
                 test-id="__employment-start-date"
                 css={localStyles.date}
               >
-                <label htmlFor="employment-start-date" css={localStyles.label}>
+                <label htmlFor="employment-start-date" 
+                css={{
+                  ...localStyles.label,
+                  // marginBottom: '20px'
+                }}
+                >
                   Employment start date
                 </label>
                 <input
                   type="date"
                   name="employment-start-date"
-                  css={localStyles.textInput}
+                  css={localStyles.dateInput}
                   {...employmentStartDate.control}
+                  disabled={submitted}
                   required
                 />
               </div>
@@ -323,8 +457,9 @@ function ReferenceForm() {
                 <input
                   type="date"
                   name="employment-end-date"
-                  css={localStyles.textInput}
+                  css={localStyles.dateInput}
                   {...employmentEndDate.control}
+                  disabled={submitted}
                   /* may still be working for the employer */
                   // required
                 />
@@ -354,6 +489,7 @@ function ReferenceForm() {
               name="guarantor_name"
               css={localStyles.textInput}
               {...guarantorName.control}
+              disabled={submitted}
               required
             />
 
@@ -365,6 +501,7 @@ function ReferenceForm() {
               name="guarantor_address"
               css={localStyles.textInput}
               {...guarantorAddress.control}
+              disabled={submitted}
               required
             />
 
@@ -377,6 +514,7 @@ function ReferenceForm() {
               <select
                 name="guarantor_relationship"
                 {...guarantorRelationship.control}
+                disabled={submitted}
               >
                 <option>Parent</option>
                 <option>Sibling</option>
@@ -385,7 +523,7 @@ function ReferenceForm() {
               </select>
             </div>
           </div>
-
+                <div className="divider" css={localStyles.sectionTitle}></div>
           {/* SUBMISSION BUTTONS */}
 
           <div
@@ -400,17 +538,49 @@ function ReferenceForm() {
             >
               Cancel
             </button>
+
+            {submitted ? 
             <button
-              className="reference-form--buttons__submitBtn"
-              test-id="__reference-form--buttons__submitBtn"
-              type="submit"
-              css={localStyles.submitBtn}
-            >
-              Submit
-            </button>
+            className="reference-form--buttons__submitBtn"
+            test-id="__reference-form--buttons__submitBtn"
+            type="submit"
+            css={localStyles.submitBtnSuccess}
+            disabled
+          >
+            Thank you!
+          </button>
+            : <button
+            className="reference-form--buttons__submitBtn"
+            test-id="__reference-form--buttons__submitBtn"
+            type="submit"
+            css={localStyles.submitBtn}
+          >
+            Submit
+          </button>
+          
+          }
+            
           </div>
         </form>
       </main>
+
+      {submitted && (
+        <div className="success" test-id="__success" css={localStyles.success}>
+          {[
+            firstName,
+            lastName,
+            address,
+            employerName,
+            employmentStartDate,
+            employmentEndDate,
+            guarantorName,
+            guarantorAddress,
+            guarantorRelationship,
+          ]
+            .map(({ control }) => control.value)
+            .join(" ")}
+        </div>
+      )}
     </div>
   );
 }
