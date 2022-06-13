@@ -22,11 +22,66 @@ const localStyles = {
   submitBtn: {},
 };
 
+/* 
+
+{
+  "personal": {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "current_address": "Address 1, Address 2, ..."
+  },
+  "employer": [
+    {
+      "name": "Employer",
+      "start_date": "20180301",
+      "end_date": "20190815"
+}, {
+      "name": "Employer",
+      "start_date": "20180901",
+      "end_date": "20190131"
+} ],
+  "guarantor": {
+    "name": "Guarantor",
+    "address": "Address1, Address2, ...",
+    "relation": "Parent"
+} }
+*/
+interface DataModel {
+  personal: {
+    first_name: string;
+    last_name: string;
+    current_address: string;
+  };
+  employer: [
+    {
+      name: string;
+      start_date: string;
+      end_date: string;
+    },
+    {
+      name: string;
+      start_date: string;
+      end_date: string;
+    }
+  ];
+  guarantor: {
+    name: string;
+    address: string;
+    relation: string;
+  };
+}
+
 function ReferenceForm() {
   const [submitted, setSubmitted] = useState(false);
-  const firstName = useFormInput("", { msg: "I don't know of any name shorter than 2 letters, please provide a longer name", validationFn: (val) => val.length > 1 });
+  const firstName = useFormInput("", {
+    msg: "I don't know of any name shorter than 2 letters, please provide a longer name",
+    validationFn: (val) => val.length > 1,
+  });
   const lastName = useFormInput("");
-  const address = useFormInput("", { msg: "Address must be at least 5 characters long", validationFn: (val) => val.length >= 5 });
+  const address = useFormInput("", {
+    msg: "Address must be at least 5 characters long",
+    validationFn: (val) => val.length >= 5,
+  });
   const employerName = useFormInput("");
   const employmentStartDate = useFormInput("");
   const employmentEndDate = useFormInput("");
@@ -38,19 +93,29 @@ function ReferenceForm() {
     e.preventDefault();
 
     /* submit if everything is validated */
-    function isValid({ validation: { isValid }}: { validation: { isValid: boolean }}) {
-      return isValid
+    function isValid({
+      validation: { isValid },
+    }: {
+      validation: { isValid: boolean };
+    }) {
+      return isValid;
     }
 
     function report(state: UseFormInputResult) {
-      let { control: {value}, validation: { isValid, validationMsg }} = state
-      return [value, isValid, validationMsg]
+      let {
+        control: { value },
+        validation: { isValid, validationMsg },
+      } = state;
+      return [value, isValid, validationMsg];
     }
 
-    // function sendValidatedData(data:)
-
+    function parseDate(date: string): string {
+      return date.replace(/-/g, "")
+    }
+    
     if (
-      [firstName,
+      [
+        firstName,
         lastName,
         address,
         employerName,
@@ -58,13 +123,41 @@ function ReferenceForm() {
         employmentEndDate,
         guarantorName,
         guarantorAddress,
-        guarantorRelationship].every(isValid)
+        guarantorRelationship,
+      ].every(isValid)
     ) {
-      console.log('ok')
+
+      const rv = { 
+        "personal": {
+          "first_name": firstName.control.value,
+          "last_name": lastName.control.value,
+          "current_address": address.control.value,
+        },
+        "employer": [
+          {
+            "name": employerName.control.value,
+            "start_date": parseDate(employmentStartDate.control.value), // make "20180301",
+            "end_date": parseDate(employmentEndDate.control.value), //"20190815"
+      }, 
+      
+      /**@todo add employers */
+      //{
+      //       "name": "Employer",
+      //       "start_date": "20180901",
+      //       "end_date": "20190131"
+      // } 
+    ],
+        "guarantor": {
+          "name": guarantorName.control.value,
+          "address": guarantorAddress.control.value,
+          "relation": guarantorRelationship.control.value,
+      } }
+      console.log("ok", rv);
       setSubmitted(true);
     } else {
       /* debug */
-      const summary = [firstName,
+      const summary = [
+        firstName,
         lastName,
         address,
         employerName,
@@ -72,15 +165,15 @@ function ReferenceForm() {
         employmentEndDate,
         guarantorName,
         guarantorAddress,
-        guarantorRelationship].map(report)
+        guarantorRelationship,
+      ].map(report);
 
-      console.log("something wrong!", summary)
+      console.log("something wrong!", summary);
 
       /* send to API */
 
       setSubmitted(false);
     }
-    
   };
 
   return (
@@ -364,20 +457,20 @@ function useFormInput(
         typeof validationConfig.validationFn === "function"
       ) {
         /* run validation function and update input's validation state */
-        let ok = validationConfig.validationFn(e.target.value)
+        let ok = validationConfig.validationFn(e.target.value);
         setIsValid(ok);
-        setValidationMsg(!ok ? validationConfig?.msg : undefined )
+        setValidationMsg(!ok ? validationConfig?.msg : undefined);
       } else {
         /* no validation function === users don't care */
         setIsValid(true);
 
         /* we can provide a hint to user but not really validate */
-        setValidationMsg(validationConfig?.msg || undefined)
+        setValidationMsg(validationConfig?.msg || undefined);
       }
     } else {
       /* selects/dates could be validated here, but no point atm */
       setIsValid(true);
-      setValidationMsg(validationConfig?.msg || undefined)
+      setValidationMsg(validationConfig?.msg || undefined);
     }
 
     /* provide the value for display */
