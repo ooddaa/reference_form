@@ -24,9 +24,9 @@ const localStyles = {
 
 function ReferenceForm() {
   const [submitted, setSubmitted] = useState(false);
-  const firstName = useFormInput("");
+  const firstName = useFormInput("", { msg: "I don't know of any name shorter than 2 letters, please provide a longer name", validationFn: (val) => val.length > 1 });
   const lastName = useFormInput("");
-  const address = useFormInput("");
+  const address = useFormInput("", { msg: "Address must be at least 5 characters long", validationFn: (val) => val.length >= 5 });
   const employerName = useFormInput("");
   const employmentStartDate = useFormInput("");
   const employmentEndDate = useFormInput("");
@@ -37,10 +37,20 @@ function ReferenceForm() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    console.log(
-      "all ok, sending data:",
-      [
-        firstName,
+    /* submit if everything is validated */
+    function isValid({ validation: { isValid }}: { validation: { isValid: boolean }}) {
+      return isValid
+    }
+
+    function report(state: UseFormInputResult) {
+      let { control: {value}, validation: { isValid, validationMsg }} = state
+      return [value, isValid, validationMsg]
+    }
+
+    // function sendValidatedData(data:)
+
+    if (
+      [firstName,
         lastName,
         address,
         employerName,
@@ -48,9 +58,29 @@ function ReferenceForm() {
         employmentEndDate,
         guarantorName,
         guarantorAddress,
-        guarantorRelationship,
-      ].map(({ control }) => control.value)
-    );
+        guarantorRelationship].every(isValid)
+    ) {
+      console.log('ok')
+      setSubmitted(true);
+    } else {
+      /* debug */
+      const summary = [firstName,
+        lastName,
+        address,
+        employerName,
+        employmentStartDate,
+        employmentEndDate,
+        guarantorName,
+        guarantorAddress,
+        guarantorRelationship].map(report)
+
+      console.log("something wrong!", summary)
+
+      /* send to API */
+
+      setSubmitted(false);
+    }
+    
   };
 
   return (
@@ -299,14 +329,26 @@ interface ValidationConfig {
   validationFn?: (val: string) => boolean;
 }
 
+export interface UseFormInputResult {
+  control: {
+    value: string;
+    onChange: (
+      e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+    ) => void;
+  };
+  validation: {
+    isValid: boolean;
+    validationMsg?: string;
+    // keyof ValidationConfig,
+  };
+}
+
 function useFormInput(
   initialValue: string,
   validationConfig?: ValidationConfig
 ) {
   const [value, setValue] = useState<string>(initialValue);
-  const [validationMsg, setValidationMsg] = useState<string>(
-    validationConfig?.msg || ""
-  );
+  const [validationMsg, setValidationMsg] = useState<string>();
 
   /* presume non valid input */
   const [isValid, setIsValid] = useState<boolean>(false);
@@ -322,14 +364,20 @@ function useFormInput(
         typeof validationConfig.validationFn === "function"
       ) {
         /* run validation function and update input's validation state */
-        setIsValid(validationConfig.validationFn(e.target.value));
+        let ok = validationConfig.validationFn(e.target.value)
+        setIsValid(ok);
+        setValidationMsg(!ok ? validationConfig?.msg : undefined )
       } else {
         /* no validation function === users don't care */
         setIsValid(true);
+
+        /* we can provide a hint to user but not really validate */
+        setValidationMsg(validationConfig?.msg || undefined)
       }
     } else {
       /* selects/dates could be validated here, but no point atm */
       setIsValid(true);
+      setValidationMsg(validationConfig?.msg || undefined)
     }
 
     /* provide the value for display */
