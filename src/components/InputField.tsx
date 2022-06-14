@@ -5,6 +5,7 @@ import { styles } from "./styles/styleSystem";
 
 interface InputFieldProps {
   label?: string;
+  type?: "text" | "date" | "email" | "password";
   styles?: { main?: CSSObject; label?: CSSObject; input?: CSSObject };
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -52,6 +53,7 @@ const defaultClassName = "input-field";
 
 function InputField({
   label,
+  type,
   styles,
   value,
   onChange,
@@ -103,7 +105,7 @@ function InputField({
       </label>
       <input
         {...inputClassNames}
-        type="text"
+        type={type || "text"}
         css={styles?.input || localStyles.input}
         value={value}
         onChange={onChange}
