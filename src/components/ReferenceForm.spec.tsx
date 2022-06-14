@@ -43,7 +43,7 @@ describe("form behaves correctly", () => {
     cy.get("__success").should("not.exist");
   });
 
-  it.only("form submits data", () => {
+  it("form submits data", () => {
     let [
       firstName,
       lastName,

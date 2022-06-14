@@ -1,7 +1,8 @@
 /**@jsxImportSource @emotion/react */
 import React, { FormEvent, useState, ChangeEvent } from "react";
 import { Global } from "@emotion/react";
-import { mq, styles, utils } from "./styles/ReferenceFormStyles";
+import { mq, styles, utils } from "./styles/styleSystem";
+import InputField from "./InputField";
 import CustomSelect from './CustomSelect'
 import { DataModel, UseFormInputResult, ValidationConfig, SimpleCustomSelectEvent } from './interfaces'
 import { v4 as uuidv4 } from 'uuid';
@@ -240,6 +241,13 @@ const selectStyles = {
   },
 };
 
+const textInputStyles = {
+  styles: {
+    label: localStyles.label,
+    input: localStyles.textInput, 
+  }
+}
+
 const selectProps = {
   options: [{ value: "Parent" }, { value: "Sibling" }, { value: "Employer" }, { value: "Other" }],
 };
@@ -449,43 +457,31 @@ function ReferenceForm() {
               Personal
             </div>
 
-            <label htmlFor="fist_name" css={localStyles.label}>
-              First name
-            </label>
-            <input
-              test-id="__reference-form--personal__first-name"
-              type="text"
-              name="fist_name"
-              css={localStyles.textInput}
+            <InputField 
+              label="First Name"
+              inputTestId="__reference-form--personal__first-name"
+              disabled={submitted}
+              required
               {...firstName.control}
-              disabled={submitted}
-              required
+              {...textInputStyles}
             />
 
-            <label htmlFor="last_name" css={localStyles.label}>
-              Last name
-            </label>
-            <input
-              test-id="__reference-form--personal__last-name"
-              type="text"
-              name="last_name"
-              css={localStyles.textInput}
+            <InputField 
+              label="Last Name"
+              inputTestId="__reference-form--personal__last-name"
+              disabled={submitted}
+              required
               {...lastName.control}
-              disabled={submitted}
-              required
+              {...textInputStyles}
             />
 
-            <label htmlFor="address" css={localStyles.label}>
-              Address
-            </label>
-            <input
-              test-id="__reference-form--personal__address"
-              type="text"
-              name="address"
-              css={localStyles.textInput}
-              {...address.control}
+          <InputField 
+              label="Address"
+              inputTestId="__reference-form--personal__address"
               disabled={submitted}
               required
+              {...address.control}
+              {...textInputStyles}
             />
           </div>
 
@@ -517,17 +513,14 @@ function ReferenceForm() {
                     css={localStyles.employer}
                     key={i}
                   >
-                    <label htmlFor="employerName" css={localStyles.label}>
-                      Employer name
-                    </label>
-                    <input
-                      type="text"
-                      name="employerName"
-                      css={localStyles.textInput}
-                      onChange={(e) => handleEmployer("employerName", e, uuid)}
-                      value={employerName}
+
+                    <InputField 
+                      label="Employer name"
                       disabled={submitted}
                       required
+                      value={employerName}
+                      onChange={(e) => handleEmployer("employerName", e, uuid)}
+                      {...textInputStyles}
                     />
 
                     {/* EMPLOYMENT DATES */}
@@ -604,7 +597,7 @@ function ReferenceForm() {
               className="add-employer"
               test-id="__add-employer"
               css={localStyles.addEmployerBtn}
-              onClick={() => addEmployer()}
+              onClick={addEmployer}
             >
               Add employer
             </div>
@@ -624,31 +617,23 @@ function ReferenceForm() {
               Guarantor
             </div>
 
-            <label htmlFor="guarantor_name" css={localStyles.label}>
-              Guarantor name
-            </label>
-            <input
-            test-id="__guarantor_name"
-              type="text"
-              name="guarantor_name"
-              css={localStyles.textInput}
-              {...guarantorName.control}
-              disabled={submitted}
-              required
-            />
+            <InputField 
+                label="Guarantor name"
+                inputTestId="__guarantor_name"
+                disabled={submitted}
+                required
+                {...guarantorName.control}
+                {...textInputStyles}
+              />
 
-            <label htmlFor="guarantor_address" css={localStyles.label}>
-              Guarantor address
-            </label>
-            <input
-            test-id="__guarantor_address"
-              type="text"
-              name="guarantor_address"
-              css={localStyles.textInput}
-              {...guarantorAddress.control}
-              disabled={submitted}
-              required
-            />
+            <InputField 
+                label="Guarantor address"
+                inputTestId="__guarantor_address"
+                disabled={submitted}
+                required
+                {...guarantorAddress.control}
+                {...textInputStyles}
+              />
 
             {/* SELECTOR */}
             <div
