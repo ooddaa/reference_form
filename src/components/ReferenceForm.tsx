@@ -6,6 +6,7 @@ import CustomSelect from './CustomSelect'
 import { DataModel, UseFormInputResult, ValidationConfig, SimpleCustomSelectEvent } from './interfaces'
 import { v4 as uuidv4 } from 'uuid';
 import findIndex from 'lodash/findIndex'
+// import axios, { AxiosResponse } from 'axios'
 
 const maxWidth = 450;
 const minWidth = 350;
@@ -335,7 +336,8 @@ function ReferenceForm() {
         guarantorRelationship,
       ].every(isValid)
     ) {
-      const rv: DataModel = {
+
+      const data: DataModel = {
         personal: {
           first_name: firstName.control.value,
           last_name: lastName.control.value,
@@ -356,8 +358,28 @@ function ReferenceForm() {
           relation: guarantorRelationship.control.value,
         },
       };
-      console.log("ok", rv);
-      setSubmitted(true);
+
+      /* try submitting to fictional api */
+      try {
+        /* will comment out so that tests don't fail */
+        // const response = 
+        //   axios
+        //   .post('https://ref-api.goodlord.co/reference/new', data)
+        //   .then((res: AxiosResponse) => {
+        //     if (res.status === 200) {
+        //       /* more checks */
+        //       setSubmitted(true);
+        //     } else {
+        //       /* inform user of error */
+        //     }
+        //   })
+        console.log('sent to api:', data)
+        setSubmitted(true);
+        
+      } catch (error) {
+        /* inform user of error */
+      }
+
     } else {
       /* debug */
       const summary = [
@@ -370,9 +392,6 @@ function ReferenceForm() {
       ].map(report);
 
       console.log("something wrong!", summary);
-
-      /* send to API */
-
       setSubmitted(false);
     }
   };

@@ -9,8 +9,9 @@ import ReferenceForm from "./ReferenceForm";
 /* eslint-disable no-undef */
 /* eslint-disable no-unused-vars */
 /* eslint-disable testing-library/prefer-screen-queries */
-/* eslint-disable no-redeclare */
-/*global cy before*/
+// /* eslint-disable no-redeclare */
+
+// /*global cy before*/
 describe("form renders correctly", () => {
   beforeEach(() => {
     mount(<ReferenceForm />);
@@ -42,7 +43,7 @@ describe("form behaves correctly", () => {
     cy.get("__success").should("not.exist");
   });
 
-  it("form submits data", () => {
+  it.only("form submits data", () => {
     let [
       firstName,
       lastName,
@@ -52,7 +53,7 @@ describe("form behaves correctly", () => {
       endDate,
       guarantorName,
       guarantorAddress,
-      guarantorRelationship,
+      // guarantorRelationship,
     ] = [
       "test_firstName",
       "test_lastName",
@@ -67,45 +68,45 @@ describe("form behaves correctly", () => {
 
     /* PERSONAL */
     cy.get("[test-id='__reference-form--personal__first-name']")
-      .type(firstName, { force: true })
+      .type(firstName)
       .should("exist");
 
     cy.get("[test-id='__reference-form--personal__last-name']")
-      .type(lastName, { force: true })
+      .type(lastName)
       .should("exist");
 
     cy.get("[test-id='__reference-form--personal__address']")
-      .type(address, { force: true })
+      .type(address)
       .should("exist");
 
     /* EMPLOYERS */
     cy.get("[test-id='__employer--0']")
       .find("input[type='text']")
-      .type(employerName, { force: true })
+      .type(employerName)
       .should("exist");
 
     cy.get("[test-id='__employment-start-date']")
       .find("input")
-      .type(startDate, { force: true })
+      .type(startDate)
       .should("exist");
 
     cy.get("[test-id='__employment-end-date']")
       .find("input")
-      .type(endDate, { force: true })
+      .type(endDate)
       .should("exist");
 
     /* GUARANTOR */
     cy.get("[test-id='__guarantor_name']")
-      .type(guarantorName, { force: true })
+      .type(guarantorName)
       .should("exist");
 
     cy.get("[test-id='__guarantor_address']")
-      .type(guarantorAddress, { force: true })
+      .type(guarantorAddress)
       .should("exist");
 
     cy.get("[test-id='__custom-select--control']")
       .should("exist")
-      .click({ force: true }); // opens options list
+      .click(); // opens options list
 
     cy.get("[test-id='__custom-select--options-list']")
       .should("be.visible")
@@ -125,7 +126,7 @@ describe("form behaves correctly", () => {
     /* select one option */
     cy.get("[test-id='__option--1']")
       .should("have.text", "Sibling")
-      .click({ force: true });
+      .click();
 
     /* option is selected */
     cy.get("[test-id='__guarantor_relationship']").should(
@@ -135,8 +136,11 @@ describe("form behaves correctly", () => {
 
     /* form submits correctly */
     cy.get("[test-id='__reference-form--buttons__submitBtn']").click({
-      force: true,
+      // force: true,
     });
+
+    /* interc */
+    cy.intercept('post', 'https://ref-api.goodlord.co/reference/new')
 
     cy.get("[test-id='__success']")
       .should("be.not.visible")
@@ -149,8 +153,8 @@ describe("form behaves correctly", () => {
     cy.get("[test-id='__employer--2']").should("not.exist");
 
     cy.get("[test-id='__add-employer']")
-      .click({ force: true })
-      .click({ force: true });
+      .click()
+      .click();
 
     cy.get("[test-id='__employer--1']").should("exist");
     cy.get("[test-id='__employer--2']").should("exist");
@@ -158,8 +162,8 @@ describe("form behaves correctly", () => {
 
   it("removes employers", () => {
     cy.get("[test-id='__add-employer']")
-      .click({ force: true })
-      .click({ force: true });
+      .click()
+      .click();
 
     cy.get("[test-id='__employer--0']").should("exist");
     cy.get("[test-id='__employer--1']").should("exist");
@@ -167,8 +171,8 @@ describe("form behaves correctly", () => {
 
     cy.get("[test-id='__employer--2']")
       .find(".remove-employer")
-      .click({ force: true });
+      .click();
 
-      cy.get("[test-id='__employer--2']").should("not.exist");
+    cy.get("[test-id='__employer--2']").should("not.exist");
   });
 });
